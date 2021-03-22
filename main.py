@@ -50,13 +50,19 @@ def createGraph(data):
 
     return graph
 
-def isLeaf(graph):
+def getLeaves(graph):
     leaves = np.array([])
     for values in graph.values():
         for value in values:
-            if value in graph.keys():
-                pass
-            else:
+            if value not in graph.keys():
+                leaves = np.append(leaves, value)
+    return leaves
+
+def getFilterLeaves(graph, filters):
+    leaves = np.array([])
+    for values in graph.values():
+        for value in values:
+            if value not in graph.keys() and all(filter in value for filter in filters):
                 leaves = np.append(leaves, value)
     return leaves
 
@@ -65,7 +71,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process a vulnerabily model', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('fileDirectoryName', help='input file directory name\n'
                                                 'eg. models/CVE-example.fm')
-    #parser.add_argument('-o', help='optional argument')
     args = parser.parse_args()
 
     # Check if file exists
@@ -83,9 +88,12 @@ if __name__ == "__main__":
             data.pop(0)
             graph = createGraph(data)
 
-            leaves = isLeaf(graph)
+            # Get leaves and filter leaves
+            filters = ['rc', 'version']
+            leaves = getLeaves(graph)
+            leavesF = getFilterLeaves(graph, filters)
 
-            print(graph)
+            print(leavesF)
 
     
     except FileNotFoundError:
