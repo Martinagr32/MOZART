@@ -46,17 +46,9 @@ def createGraph(data):
                         graph[source] = [graph[source]]
                     graph[source].append(feature)
                 else:
-                    graph[source] = [feature]
+                    graph[source] = feature
 
     return graph
-
-def getLeaves(graph):
-    leaves = np.array([])
-    for values in graph.values():
-        for value in values:
-            if value not in graph.keys():
-                leaves = np.append(leaves, value)
-    return leaves
 
 def getFilterLeaves(graph, filters):
     leaves = np.array([])
@@ -65,6 +57,19 @@ def getFilterLeaves(graph, filters):
             if value not in graph.keys() and all(filter in value for filter in filters):
                 leaves = np.append(leaves, value)
     return leaves
+
+def getProductVersion(leaves):
+    pv = {}
+    for leaf in leaves:
+        product = leaf.split('_')[2]
+        version = leaf.split('version_',1)[1]
+        if product in pv.keys():
+            if not isinstance(pv[product], list):
+                pv[product] = [pv[product]]
+            pv[product].append(version)
+        else:
+            pv[product] = version
+    return pv
 
 if __name__ == "__main__":
 
@@ -88,12 +93,14 @@ if __name__ == "__main__":
             data.pop(0)
             graph = createGraph(data)
 
-            # Get leaves and filter leaves
+            # Get filter leaves
             filters = ['rc', 'version']
-            leaves = getLeaves(graph)
             leavesF = getFilterLeaves(graph, filters)
 
-            print(leavesF)
+            # Get Product & Version of filtered leaves
+            pv = getProductVersion(leavesF)
+
+            print(pv)
 
     
     except FileNotFoundError:
