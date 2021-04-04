@@ -22,7 +22,7 @@ if __name__ == "__main__":
     search = client.images.search('terminoBusqueda')
 
     # Pull an image (without auth)
-    imageName = 'wordpress'
+    imageName = 'wordpress' # Algunas imagenes (como openssl no tienen con su nombre solo, usar los names resultados del search)
     image = client.images.pull(imageName)
 
     # Run a container (in the background)
