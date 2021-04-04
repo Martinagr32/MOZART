@@ -47,16 +47,15 @@ def createGraph(data):
                     graph[source].append(feature)
                 else:
                     graph[source] = feature
-
     return graph
 
 def getFilterLeaves(graph, filters):
-    leaves = np.array([])
+    leavesF = np.array([])
     for values in graph.values():
         for value in values:
             if value not in graph.keys() and all(filter in value for filter in filters):
-                leaves = np.append(leaves, value)
-    return leaves
+                leavesF = np.append(leavesF, value)
+    return leavesF
 
 def getProductVersion(leaves):
     pv = {}
@@ -102,6 +101,6 @@ if __name__ == "__main__":
 
             print(pv)
 
-    
-    except FileNotFoundError:
+    except FileNotFoundError as e:
         print('File not accessible. Please, check directory or file name.')
+        print(e)
