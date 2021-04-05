@@ -107,7 +107,7 @@ def getProductVersion(graph, filters) -> dict:
     leaves = getFilterLeaves(graph, filters)
 
     for leaf in leaves:
-        product = leaf.split('_')[2]
+        product = leaf.split('_')[2] # Si no es un rc, debe coger la posicion 1 en vez de la dos -- IMPORTANTE --
         version = leaf.split('version_',1)[1].replace('__','.')
 
         # Check if that product already exists
