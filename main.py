@@ -30,7 +30,7 @@ if __name__ == "__main__":
             if 'version' not in filters:
                 filters.append('version')
 
-            # Get Product & Version of filtered leaves
+            # Get Product & Version of filtered leaves of the graph
             pv = getProductVersion(graph, filters)
 
             print(pv)

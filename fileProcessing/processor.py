@@ -37,6 +37,7 @@ def getGraph(file) -> dict:
     for line in data:
         features = line.split()
         source = features.pop(0).replace(':', '')
+        
         for feature in features:
             # Relation of attributes
             if feature == '[1,1]':
@@ -107,7 +108,7 @@ def getProductVersion(graph, filters) -> dict:
 
     for leaf in leaves:
         product = leaf.split('_')[2]
-        version = leaf.split('version_',1)[1]
+        version = leaf.split('version_',1)[1].replace('__','.')
 
         # Check if that product already exists
         if product in pv.keys():
