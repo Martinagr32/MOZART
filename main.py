@@ -5,10 +5,8 @@ __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import argparse
 
-from fileProcessing.processor import getGraph, getProductVersion
-
-def getImageName(pv):
-    return 'None'
+from processing.CVEfiles import getGraph, getProductVersion
+from processing.scrapping import getExistingImageNames
 
 if __name__ == "__main__":
 
@@ -35,12 +33,13 @@ if __name__ == "__main__":
             # Get Product & Version of filtered leaves of the graph
             pv = getProductVersion(graph, filters)
 
-            imageName = getImageName(pv)
+            # Get list of image names if they exist in the repository
+            imageName = getExistingImageNames(pv)
 
-            if(imageName != 'None'):
-                print('\nAn image with the specified characteristics was found!')
-            else:
+            if not imageName:
                 print('\nAn image with the specified characteristics could not be found')
+            else:
+                print('\nAn image with the specified characteristics was found!')
 
     except FileNotFoundError as e:
         print('File not accessible. Please, check directory or file name.')
