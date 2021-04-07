@@ -87,10 +87,16 @@ def getFilterLeaves(graph, filters) -> list:
     leavesF = np.array([])
 
     for values in graph.values():
-        for value in values:
+        # Check if it a list to go through it
+        if isinstance(values, list):
+            for value in values:
+                # Check if the value is leaf and satisfy all the filters
+                if value not in graph.keys() and all(filter in value for filter in filters):
+                    leavesF = np.append(leavesF, value)
+        else:
             # Check if the value is leaf and satisfy all the filters
-            if value not in graph.keys() and all(filter in value for filter in filters):
-                leavesF = np.append(leavesF, value)
+            if values not in graph.keys() and all(filter in values for filter in filters):
+                leavesF = np.append(leavesF, values)
 
     return leavesF
 
@@ -107,7 +113,13 @@ def getProductVersion(graph, filters) -> dict:
     leaves = getFilterLeaves(graph, filters)
 
     for leaf in leaves:
-        product = leaf.split('_')[2]
+
+        # Check if it is a running configuration and get the product accordingly
+        if 'rc' in filters:
+            product = leaf.split('_')[2]
+        else:
+            product = leaf.split('_')[1]
+            
         version = leaf.split('version_',1)[1].replace('__','.')
 
         # Check if that product already exists
