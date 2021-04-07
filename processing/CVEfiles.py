@@ -111,7 +111,6 @@ def getProductVersion(graph, filters) -> dict:
     pv = {}
 
     leaves = getFilterLeaves(graph, filters)
-    print(leaves)
 
     for leaf in leaves:
 

@@ -35,7 +35,6 @@ if __name__ == "__main__":
             
             # Get Product & Version of filtered leaves of the graph
             pv = getProductVersion(graph, filters)
-            print(pv)
 
             # Get list of image names if they exist in the repository
             imageName = getExistingImageNames(pv)
