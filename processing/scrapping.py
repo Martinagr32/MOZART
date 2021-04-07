@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 import requests
 import webbrowser
 
-import time
 from selenium import webdriver
 
 def getExistingImageNames(pv) -> list:
@@ -28,10 +27,13 @@ def getExistingImageNames(pv) -> list:
         cont = BeautifulSoup(resp.content,"lxml")
         #print(cont)
 
-        driver = webdriver.Firefox()
+        options = webdriver.FirefoxOptions()
+        options.headless = True
+        options.add_argument('--no-sandbox')
+
+        driver = webdriver.Firefox(options=options)
         driver.get(url)
-        time.sleep(3)
         htmlSource = driver.page_source
-        print(htmlSource)
+        #print(htmlSource)
 
     return res
