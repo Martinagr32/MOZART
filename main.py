@@ -24,22 +24,29 @@ if __name__ == "__main__":
 
             # Ask the user for filters
             filter = input('\nPlease, enter filter words (separated by commas):')
-            filters = filter.replace(' ','').split(',')
+            if filter == '':
+                filters = []
+            else:
+                filters = filter.replace(' ','').split(',')
 
             # Check if 'version' is one of the filters entered. If that is not the case, he adds it
             if 'version' not in filters:
                 filters.append('version')
-
+            
             # Get Product & Version of filtered leaves of the graph
             pv = getProductVersion(graph, filters)
+            print(pv)
 
             # Get list of image names if they exist in the repository
             imageName = getExistingImageNames(pv)
 
+            # Check if any image was found
             if not imageName:
                 print('\nAn image with the specified characteristics could not be found')
+                # Aqui habra q montar el docker-compose para montar la imagen que queremos
             else:
                 print('\nAn image with the specified characteristics was found!')
+                # Elegir una de ellas y lanzarla
 
     except FileNotFoundError as e:
         print('File not accessible. Please, check directory or file name.')

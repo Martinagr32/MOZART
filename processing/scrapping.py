@@ -4,7 +4,6 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 from bs4 import BeautifulSoup
-#import dryscrape
 import requests
 import webbrowser
 
@@ -29,9 +28,9 @@ def getExistingImageNames(pv) -> list:
         cont = BeautifulSoup(resp.content,"lxml")
         #print(cont)
 
-        driver = webdriver.PhantomJS()
+        driver = webdriver.Firefox()
         driver.get(url)
-        #time.sleep(5)
+        time.sleep(3)
         htmlSource = driver.page_source
         print(htmlSource)
 
