@@ -44,7 +44,14 @@ if __name__ == "__main__":
                 print('\nAn image with the specified characteristics could not be found')
                 # Aqui habra q montar el docker-compose para montar la imagen que queremos
             else:
-                print('\nAn image with the specified characteristics was found!')
+                print('\nThe search has been successful!')
+
+                # Show the number of images found
+                if len(imageName) > 1:
+                    print(str(len(imageName))+' images have been found')
+                else:
+                    print('\n1 image has been found ')
+                    
                 # Elegir una de ellas y lanzarla
 
     except FileNotFoundError as e:
