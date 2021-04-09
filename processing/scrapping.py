@@ -7,7 +7,6 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-
 def getExistingImageNames(pv) -> list:
     '''
         Check if a product image with specific version exist in Docker Hub
@@ -20,6 +19,8 @@ def getExistingImageNames(pv) -> list:
     options = webdriver.FirefoxOptions()
     options.headless = True
     options.add_argument('--no-sandbox')
+
+    # Initialize driver
     driver = webdriver.Firefox(options=options)
 
     for product in pv.keys():
@@ -70,5 +71,8 @@ def getExistingImageNames(pv) -> list:
             # Not all images have a description
             except: 
                 pass
+    
+    # Closing driver
+    driver.quit()
 
     return res
