@@ -4,7 +4,6 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import argparse
-import webbrowser
 
 from processing.CVEfiles import getGraph, getProductVersion
 from processing.scrapping import getExistingImageNames
@@ -59,7 +58,7 @@ if __name__ == "__main__":
             pv = getProductVersion(graph, filters)
 
             # Get list of image names if they exist in the repository
-            imageName = getExistingImageNames(pv)
+            imageName = 'louygan/openssl-alpine'#getExistingImageNames(pv)
             
             # Check if any image was found
             if not imageName:
@@ -74,37 +73,37 @@ if __name__ == "__main__":
                 if isinstance(imageName, list):
                     print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
 
+                    # Ask the user for local host port
                     localPort = input('\nIn which port do you want to display the image?:')
                     localPort = checkPortInput(localPort)
 
                     for image in imageName:
 
                         # Pull and run container image
-                        status = launchImage(image)
+                        status = launchImage(image, localPort)
                         
                         # Check if it was launched successfully
-                        if(status == 'Launch error'):
+                        if(status == 'Exit'):
                             print('Image '+image+' could not be launched')
                         else:
                             print('\nImage '+image+' has been launched successfully')
-                            webbrowser.open('http://localhost:' + str(localPort), new=2)
                             break
                     
                 else:
                     print('\nThe search has been successful! 1 image has been found')
 
+                    # Ask the user for local host port
                     localPort = input('\nIn which port do you want to display the image?:')
                     localPort = checkPortInput(localPort)
 
                     # Pull and run container image
-                    status = launchImage(imageName)
+                    status = launchImage(imageName, localPort)
                     
                     # Check if it was launched successfully
-                    if(status == 'Launch error'):
+                    if(status == 'Exit'):
                         print('Image '+imageName+' could not be launched')
                     else:
                         print('\nImage '+imageName+' has been launched successfully')
-                        webbrowser.open('http://localhost:' + localPort, new=2)
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
