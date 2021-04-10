@@ -58,7 +58,7 @@ if __name__ == "__main__":
             pv = getProductVersion(graph, filters)
 
             # Get list of image names if they exist in the repository
-            imageName = 'louygan/openssl-alpine'#getExistingImageNames(pv)
+            imageName = getExistingImageNames(pv)
             
             # Check if any image was found
             if not imageName:
