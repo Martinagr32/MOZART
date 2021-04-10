@@ -12,7 +12,7 @@ def launchImage(imageName, localPort) -> str:
         :param imageName: container image name
     '''
     res = ''
-    containerName = imageName[:5] + 'Name'
+    containerName = imageName[:4] + 'Name'
 
     # Connect using the default socket or the configuration in your environment
     client = docker.from_env()
