@@ -68,7 +68,6 @@ if __name__ == "__main__":
                 # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
 
             else:
-                
                 # Check if it is one or more and show number of images found
                 if isinstance(imageName, list):
                     print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
@@ -88,7 +87,8 @@ if __name__ == "__main__":
                         else:
                             print('\nImage '+image+' has been launched successfully')
                             break
-                    
+                    # ¿¿ Se acabaria aqui la ejecucion??
+
                 else:
                     print('\nThe search has been successful! 1 image has been found')
 
@@ -102,6 +102,9 @@ if __name__ == "__main__":
                     # Check if it was launched successfully
                     if(status == 'Exit'):
                         print('Image '+imageName+' could not be launched')
+                        
+                        # ¿¿Redirigir al docker-compose??
+
                     else:
                         print('\nImage '+imageName+' has been launched successfully')
 
