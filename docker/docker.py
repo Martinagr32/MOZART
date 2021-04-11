@@ -1,21 +1,21 @@
 '''
-    Implements web scrapping method to search existing images in Docker Hub
+    Creating our image
 '''
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
-'''
+# PROBANDO CON UN HOLAMUNDO
 from flask import Flask
-from flask_restful import Resource, Api
 
 app = Flask(__name__)
-api = Api(app)
 
-class Product(Resource):
-    def get(self):
-        return 'product'
+@app.route('/') 
+def hello_world():     
+    return 'Hello World' 
 
-api.add_resource(Product, '/')
+@app.route('/hello/<name>')
+def hello_name(name):
+    return 'Hello %s!' % name
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
-''' 
+    app.run()
+
