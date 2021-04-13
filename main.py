@@ -4,6 +4,7 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import argparse
+from datetime import datetime
 
 from processing.CVEfiles import getGraph, getProductVersion
 from processing.scrapping import getExistingImageNames
@@ -15,14 +16,17 @@ def checkPortInput(localPort) -> int:
 
         :param localPort: user input port
     '''
-    # If user does not enter any, port 8080 will be the default port
+    # If user does not enter any or its not a number , port 8080 will be the default port
     if localPort == '':
         localPort = int('8080')
     else:
         try:
             int(localPort)
-            # ¿Deberia validar q tenga 4 digitos?
+            if not (0 <= int(localPort) and 65535 >= int(localPort)):
+                localPort = int('8080')
+            # ¿Deberia validar q este entre 0 y 65535?
         except ValueError as ve:
+            print('You must enter a number between 0 and 65535')
             print(ve)
             localPort = int('8080')
 
@@ -39,74 +43,113 @@ if __name__ == "__main__":
     try:
         with open(args.fileDirectoryName) as file:
 
-            # Load description and vulnerability tree
-            description, graph = getGraph(file)
+            # Create file with log of specific execution
+            now = datetime.now().strftime('%d-%m-%Y %H.%M.%S') # Get current date and time without / and :
+            newFile = 'log/inputsLog('+now+').txt'
 
-            # Ask the user for filters
-            filter = input('\nPlease, enter filter words (separated by commas):')
+            with open(newFile, 'w+') as logFile:
             
-            if filter == '':
-                filters = []
-            else:
-                filters = filter.replace(' ','').split(',')
+                now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                logFile.write('--- Starting execution (' + now + ') ---')
+                logFile.write('\n\nCVE file: '+args.fileDirectoryName)
 
-            # Check if 'version' is one of the filters entered. If that is not the case, he adds it
-            if 'version' not in filters:
-                filters.append('version')
-            
-            # Get Product & Version of filtered leaves of the graph
-            pv = getProductVersion(graph, filters)
+                # Load description and vulnerability tree
+                description, graph = getGraph(file)
 
-            # Get list of image names if they exist in the repository
-            imageName = getExistingImageNames(pv)
-            
-            # Check if any image was found
-            if not imageName:
-                print('\nThe search has been unsuccessful! No image has been found')
+                # Ask the user for filters
+                filter = input('\nPlease, enter filter words (separated by commas):')
 
-                # Aqui habra q montar el docker-compose para montar la imagen que queremos
-                # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
+                logFile.write('\n\nUser-entered filters: ' + filter)
+                
+                if filter == '':
+                    filters = []
+                else:
+                    filters = filter.replace(' ','').split(',')
 
-            else:
-                # Check if it is one or more and show number of images found
-                if isinstance(imageName, list):
-                    print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
+                # Check if 'version' is one of the filters entered. If that is not the case, he adds it
+                if 'version' not in filters:
+                    filters.append('version')
+                
+                # Get Product & Version of filtered leaves of the graph
+                pv = getProductVersion(graph, filters)
 
-                    # Ask the user for local host port
-                    localPort = input('\nIn which port do you want to display the image?:')
-                    localPort = checkPortInput(localPort)
+                # Get list of image names if they exist in the repository
+                imageName = getExistingImageNames(pv) #'frapsoft/openssl'
+                
+                # Check if any image was found
+                if not imageName:
+                    print('\nThe search has been unsuccessful! No image has been found')
 
-                    for image in imageName:
+                    # Aqui habra q montar el docker-compose para montar la imagen que queremos
+                    # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
+
+                else:
+                    # Check if it is one or more and show number of images found
+                    if isinstance(imageName, list):
+                        print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
+
+                        # Ask the user for local host port
+                        localPort = input('\nIn which port do you want to display the image?:')
+
+                        logFile.write('\nUser-entered port: ' + localPort)
+
+                        localPort = checkPortInput(localPort)
+
+                        # ASk the user for container name
+                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                        logFile.write('\nUser-entered container name: ' + containerName)
+                                
+                        if containerName == '' or len(containerName.split()) > 1:
+                            containerName = 'defaultName' # Autogenerate default name
+
+                        for image in imageName:
+
+                            # Pull and run container image
+                            status = launchImage(image, localPort, containerName)
+                            
+                            # Check if it was launched successfully
+                            if(status == 'Exit'):
+                                print('Image '+image+' could not be launched')
+                            else:
+                                print('\nImage '+image+' has been launched successfully')
+                                break
+                        
+                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+
+                    else:
+                        print('\nThe search has been successful! 1 image has been found')
+
+                        # Ask the user for local host port
+                        localPort = input('\nIn which port do you want to display the image?:')
+
+                        logFile.write('\nUser-entered port: ' + localPort)
+
+                        localPort = checkPortInput(localPort)
+
+                        # ASk the user for container name
+                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                        logFile.write('\nUser-entered container name: ' + containerName)
+                                
+                        if containerName == '' or len(containerName.split()) > 1:
+                            containerName = 'defaultName' # Autogenerate default name
 
                         # Pull and run container image
-                        status = launchImage(image, localPort)
+                        status = launchImage(imageName, localPort, containerName)
                         
                         # Check if it was launched successfully
                         if(status == 'Exit'):
-                            print('Image '+image+' could not be launched')
+                            print('Image '+imageName+' could not be launched')
+                            
+                            # ¿¿Redirigir al docker-compose??
+
                         else:
-                            print('\nImage '+image+' has been launched successfully')
-                            break
-                    # ¿¿ Se acabaria aqui la ejecucion??
+                            print('\nImage '+imageName+' has been launched successfully')
 
-                else:
-                    print('\nThe search has been successful! 1 image has been found')
-
-                    # Ask the user for local host port
-                    localPort = input('\nIn which port do you want to display the image?:')
-                    localPort = checkPortInput(localPort)
-
-                    # Pull and run container image
-                    status = launchImage(imageName, localPort)
-                    
-                    # Check if it was launched successfully
-                    if(status == 'Exit'):
-                        print('Image '+imageName+' could not be launched')
-                        
-                        # ¿¿Redirigir al docker-compose??
-
-                    else:
-                        print('\nImage '+imageName+' has been launched successfully')
+                            now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                            logFile.write('\n\n--- End of execution (' + now + ') ---')
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
@@ -115,4 +158,5 @@ if __name__ == "__main__":
     
     # Ensure that the file is closed even if an exception happends during the program execution
     finally:
+        logFile.close()
         file.close()
