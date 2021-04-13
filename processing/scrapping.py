@@ -14,6 +14,10 @@ def getExistingImageNames(pv) -> list:
         :param pv: dictionary product-version(s) of CVE
     '''
     res = []
+    animation = '|/-\\'
+    idx = 0
+
+    print('\n --- Starting the image search (this may take a few minutes) ---')
 
     # Options modification to not open the browser
     options = webdriver.FirefoxOptions()
@@ -27,9 +31,7 @@ def getExistingImageNames(pv) -> list:
 
         url = 'https://hub.docker.com/search?q='+product+'&type=image'
         index = 1
-        values = pv.get(product)
-
-        print('\n --- Starting the image search (this may take a few minutes) ---')
+        values = pv.get(product)  
         
         # Get web page search of product, first page and total pages
         driver.get(url)
@@ -39,16 +41,22 @@ def getExistingImageNames(pv) -> list:
         actualPage = pagination.split()[2]
 
         while actualPage != totalPage:
+
+            # Print progress animation on console
+            print('Working on it: '+animation[idx % len(animation)], end="\r")
+            idx += 1
+
             for i in range(1,26):
-                try:
-                    description = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__description___1jeSI").text
-                    # Checking if description has the version used
-                    if any(value in description for value in values):
-                        imageName = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__name___2198b").text
-                        res.append(imageName)
-                # Not all images have a description
-                except: 
-                    pass
+                imageName = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__name___2198b").text
+                if not ('/' in imageName and product in imageName.split('/')[0]):
+                    try:
+                        description = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__description___1jeSI").text
+                        # Checking if description has the version used
+                        if any(value in description for value in values):
+                            res.append(imageName)
+                    # Not all images have a description
+                    except: 
+                        pass
 
             # Advance to the next page
             index += 1
