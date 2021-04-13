@@ -1,0 +1,18 @@
+--- Starting execution (13/04/2021 12:03:40) ---
+
+CVE file: models/CVE-2019-0190.fm
+
+User-entered filters: rc
+User-entered port: 8083
+User-entered container name: nombrePrueba
+
+--- End of execution (13/04/2021 12:03:53) ---
+--- Starting execution (13/04/2021 12:54:02) ---
+
+CVE file: models/CVE-2019-0190.fm
+
+User-entered filters: rc
+User-entered port: 8086
+User-entered container name: nombree
+
+--- End of execution (13/04/2021 12:57:31) ---

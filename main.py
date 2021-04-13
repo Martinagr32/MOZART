@@ -43,113 +43,128 @@ if __name__ == "__main__":
     try:
         with open(args.fileDirectoryName) as file:
 
-            # Create file with log of specific execution
-            now = datetime.now().strftime('%d-%m-%Y %H.%M.%S') # Get current date and time without / and :
-            newFile = 'log/inputsLog('+now+').txt'
+            # Append execution to general log
+            with open('log/inputsLog.txt','a+') as logFile:
 
-            with open(newFile, 'w+') as logFile:
-            
-                now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                logFile.write('--- Starting execution (' + now + ') ---')
-                logFile.write('\n\nCVE file: '+args.fileDirectoryName)
+                # Create file with log of specific execution
+                now = datetime.now().strftime('%d-%m-%Y %H.%M.%S') # Get current date and time without / and :
+                newFile = 'log/inputsLog('+now+').txt'
 
-                # Load description and vulnerability tree
-                description, graph = getGraph(file)
+                with open(newFile, 'w+') as eLogFile:
+                    
+                    # Introducing in general log
+                    now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                    logFile.write('\n--- Starting execution (' + now + ') ---')
+                    logFile.write('\n\nCVE file: '+args.fileDirectoryName)
 
-                # Ask the user for filters
-                filter = input('\nPlease, enter filter words (separated by commas):')
+                    # Introducing in specific log
+                    eLogFile.write('--- Starting execution ---')
+                    eLogFile.write('\n\nCVE file: '+args.fileDirectoryName)
 
-                logFile.write('\n\nUser-entered filters: ' + filter)
-                
-                if filter == '':
-                    filters = []
-                else:
-                    filters = filter.replace(' ','').split(',')
+                    # Load description and vulnerability tree
+                    description, graph = getGraph(file)
 
-                # Check if 'version' is one of the filters entered. If that is not the case, he adds it
-                if 'version' not in filters:
-                    filters.append('version')
-                
-                # Get Product & Version of filtered leaves of the graph
-                pv = getProductVersion(graph, filters)
+                    # Ask the user for filters
+                    filter = input('\nPlease, enter filter words (separated by commas):')
 
-                # Get list of image names if they exist in the repository
-                imageName = getExistingImageNames(pv) #'frapsoft/openssl'
-                
-                # Check if any image was found
-                if not imageName:
-                    print('\nThe search has been unsuccessful! No image has been found')
+                    logFile.write('\n\nUser-entered filters: ' + filter)
+                    eLogFile.write('\n\nUser-entered filters: ' + filter)
+                    
+                    if filter == '':
+                        filters = []
+                    else:
+                        filters = filter.replace(' ','').split(',')
 
-                    # Aqui habra q montar el docker-compose para montar la imagen que queremos
-                    # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
+                    # Check if 'version' is one of the filters entered. If that is not the case, he adds it
+                    if 'version' not in filters:
+                        filters.append('version')
+                    
+                    # Get Product & Version of filtered leaves of the graph
+                    pv = getProductVersion(graph, filters)
 
-                else:
-                    # Check if it is one or more and show number of images found
-                    if isinstance(imageName, list):
-                        print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
+                    # Get list of image names if they exist in the repository
+                    imageName = getExistingImageNames(pv) #'frapsoft/openssl'
+                    
+                    # Check if any image was found
+                    if not imageName:
+                        print('\nThe search has been unsuccessful! No image has been found')
 
-                        # Ask the user for local host port
-                        localPort = input('\nIn which port do you want to display the image?:')
+                        # Aqui habra q montar el docker-compose para montar la imagen que queremos
+                        # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
 
-                        logFile.write('\nUser-entered port: ' + localPort)
+                    else:
+                        # Check if it is one or more and show number of images found
+                        if isinstance(imageName, list):
+                            print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
 
-                        localPort = checkPortInput(localPort)
+                            # Ask the user for local host port
+                            localPort = input('\nIn which port do you want to display the image?:')
+                            
+                            logFile.write('\nUser-entered port: ' + localPort)
+                            eLogFile.write('\nUser-entered port: ' + localPort)
 
-                        # ASk the user for container name
-                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+                            localPort = checkPortInput(localPort)
 
-                        logFile.write('\nUser-entered container name: ' + containerName)
+                            # ASk the user for container name
+                            containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                            logFile.write('\nUser-entered container name: ' + containerName)
+                            eLogFile.write('\nUser-entered container name: ' + containerName)
+                                    
+                            if containerName == '' or len(containerName.split()) > 1:
+                                containerName = 'defaultName' # Autogenerate default name
+
+                            for image in imageName:
+
+                                # Pull and run container image
+                                status = launchImage(image, localPort, containerName)
                                 
-                        if containerName == '' or len(containerName.split()) > 1:
-                            containerName = 'defaultName' # Autogenerate default name
+                                # Check if it was launched successfully
+                                if(status == 'Exit'):
+                                    print('Image '+image+' could not be launched')
+                                else:
+                                    print('\nImage '+image+' has been launched successfully')
+                                    break
+                            
+                            now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                            logFile.write('\n\n--- End of execution (' + now + ') ---')
+                            eLogFile.write('\n\n--- End of execution ---')
 
-                        for image in imageName:
+                        else:
+                            print('\nThe search has been successful! 1 image has been found')
+
+                            # Ask the user for local host port
+                            localPort = input('\nIn which port do you want to display the image?:')
+
+                            logFile.write('\nUser-entered port: ' + localPort)
+                            eLogFile.write('\nUser-entered port: ' + localPort)
+
+                            localPort = checkPortInput(localPort)
+
+                            # ASk the user for container name
+                            containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                            logFile.write('\nUser-entered container name: ' + containerName)
+                            eLogFile.write('\nUser-entered container name: ' + containerName)
+                                    
+                            if containerName == '' or len(containerName.split()) > 1:
+                                containerName = 'defaultName' # Autogenerate default name
 
                             # Pull and run container image
-                            status = launchImage(image, localPort, containerName)
+                            status = launchImage(imageName, localPort, containerName)
                             
                             # Check if it was launched successfully
                             if(status == 'Exit'):
-                                print('Image '+image+' could not be launched')
-                            else:
-                                print('\nImage '+image+' has been launched successfully')
-                                break
-                        
-                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                        logFile.write('\n\n--- End of execution (' + now + ') ---')
-
-                    else:
-                        print('\nThe search has been successful! 1 image has been found')
-
-                        # Ask the user for local host port
-                        localPort = input('\nIn which port do you want to display the image?:')
-
-                        logFile.write('\nUser-entered port: ' + localPort)
-
-                        localPort = checkPortInput(localPort)
-
-                        # ASk the user for container name
-                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
-
-                        logFile.write('\nUser-entered container name: ' + containerName)
+                                print('Image '+imageName+' could not be launched')
                                 
-                        if containerName == '' or len(containerName.split()) > 1:
-                            containerName = 'defaultName' # Autogenerate default name
+                                # ¿¿Redirigir al docker-compose??
 
-                        # Pull and run container image
-                        status = launchImage(imageName, localPort, containerName)
-                        
-                        # Check if it was launched successfully
-                        if(status == 'Exit'):
-                            print('Image '+imageName+' could not be launched')
-                            
-                            # ¿¿Redirigir al docker-compose??
+                            else:
+                                print('\nImage '+imageName+' has been launched successfully')
 
-                        else:
-                            print('\nImage '+imageName+' has been launched successfully')
-
-                            now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                            logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                eLogFile.write('\n\n--- End of execution ---')
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
@@ -158,5 +173,6 @@ if __name__ == "__main__":
     
     # Ensure that the file is closed even if an exception happends during the program execution
     finally:
+        eLogFile.close()
         logFile.close()
         file.close()
