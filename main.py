@@ -8,7 +8,7 @@ from datetime import datetime
 
 from processing.CVEfiles import getGraph, getProductVersion
 from processing.scrapping import getExistingImageNames
-from processing.deployment import launchImage
+from processing.deployment import launchPulledImage, launchCreatedImage
 
 def checkPortInput(localPort) -> int:
     '''
@@ -22,9 +22,8 @@ def checkPortInput(localPort) -> int:
     else:
         try:
             int(localPort)
-            if not (0 <= int(localPort) and 65535 >= int(localPort)):
+            if not (0 < int(localPort) and 65535 > int(localPort)):
                 localPort = int('8080')
-            # ¿Deberia validar q este entre 0 y 65535?
         except ValueError as ve:
             print('You must enter a number between 0 and 65535')
             print(ve)
@@ -83,14 +82,35 @@ if __name__ == "__main__":
                     pv = getProductVersion(graph, filters)
 
                     # Get list of image names if they exist in the repository
-                    imageName = getExistingImageNames(pv) #'frapsoft/openssl'
+                    imageName = []#getExistingImageNames(pv) #'frapsoft/openssl'
                     
                     # Check if any image was found
                     if not imageName:
                         print('\nThe search has been unsuccessful! No image has been found')
 
-                        # Aqui habra q montar el docker-compose para montar la imagen que queremos
-                        # ESTO NO ESTA HECHO -------------------------------------------------------------------------------------
+                        # Ask the user for local host port
+                        localPort = input('\nIn which port do you want to display the image?:')
+                            
+                        logFile.write('\nUser-entered port: ' + localPort)
+                        eLogFile.write('\nUser-entered port: ' + localPort)
+
+                        localPort = checkPortInput(localPort)
+
+                        # ASk the user for container name
+                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                        logFile.write('\nUser-entered container name: ' + containerName)
+                        eLogFile.write('\nUser-entered container name: ' + containerName)
+                                    
+                        if containerName == '' or len(containerName.split()) > 1:
+                            containerName = 'defaultName' # Autogenerate default name
+
+                        # Build and run container image
+                        status = launchCreatedImage(pv, localPort, containerName)
+                            
+                        # Check if it was launched successfully
+                        if(status == 'Exit'):
+                            print('Image '+imageName+' could not be launched')
 
                     else:
                         # Check if it is one or more and show number of images found
@@ -117,7 +137,7 @@ if __name__ == "__main__":
                             for image in imageName:
 
                                 # Pull and run container image
-                                status = launchImage(image, localPort, containerName)
+                                status = launchPulledImage(image, localPort, containerName)
                                 
                                 # Check if it was launched successfully
                                 if(status == 'Exit'):
@@ -151,7 +171,7 @@ if __name__ == "__main__":
                                 containerName = 'defaultName' # Autogenerate default name
 
                             # Pull and run container image
-                            status = launchImage(imageName, localPort, containerName)
+                            status = launchPulledImage(imageName, localPort, containerName)
                             
                             # Check if it was launched successfully
                             if(status == 'Exit'):
