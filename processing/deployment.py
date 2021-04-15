@@ -97,13 +97,15 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
 
     print('\n --- Building the image (this may take a few minutes) ---')
     
+    # Añadir try except para el build
+
     # Build an image of the Dockerfile path and return it. Tag is specific version used
-    image = client.images.build(path = "./",rm=True,nocache=True)
+    image = client.images.build(path = "./",rm=True) # ,nocache=True
 
     print('\n --- Running the container ---')
     
     # Run and start the container with specific name and port on the host
-    client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
+    container = client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
 
     # Wait fot the end of the execution to obtain the exit code
     result = container.wait()
