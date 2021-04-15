@@ -107,10 +107,16 @@ if __name__ == "__main__":
 
                         # Build and run container image
                         status = launchCreatedImage(pv, localPort, containerName)
-                            
+
                         # Check if it was launched successfully
                         if(status == 'Exit'):
-                            print('Image '+imageName+' could not be launched')
+                            print('Image could not be launched')
+                        else:
+                            print('\nImage has been launched successfully')
+
+                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+                        eLogFile.write('\n\n--- End of execution ---')
 
                     else:
                         # Check if it is one or more and show number of images found
@@ -177,7 +183,18 @@ if __name__ == "__main__":
                             if(status == 'Exit'):
                                 print('Image '+imageName+' could not be launched')
                                 
-                                # ¿¿Redirigir al docker-compose??
+                                # Build and run container image
+                                newStatus = launchCreatedImage(pv, localPort, containerName)
+
+                                # Check if it was launched successfully
+                                if(newStatus == 'Exit'):
+                                    print('Image could not be launched')
+                                else:
+                                    print('\nImage has been launched successfully')
+
+                                now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                eLogFile.write('\n\n--- End of execution ---')
 
                             else:
                                 print('\nImage '+imageName+' has been launched successfully')
