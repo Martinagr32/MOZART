@@ -4,7 +4,7 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import docker
-from processing.dockerfiles import opensslDockerfile
+from processing.dockerfiles import opensslDockerfile, opensshDockerfile, firefoxDockerfile, generalDockerfile
 
 def launchPulledImage(imageName, localPort, containerName) -> str:
     '''
@@ -54,7 +54,7 @@ def buildAndRunImage(containerName, localPort) -> int:
 
     try:
         # Build an image of the Dockerfile path and return it.
-        image = client.images.build(path = "./",rm=True) # ,nocache=True    
+        image = client.images.build(path = "./",rm=True) # ,nocache=True 
 
         print('\n --- Running the container ---')
                             
@@ -103,8 +103,48 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
                     else:
                         res = 'Exit'
                         idx += 1
+            elif product == 'openssh':
+                while idx < len(pv[product]):
+                    version = pv[product][idx]
+                    opensshDockerfile(version)
+
+                    exitCode = buildAndRunImage(containerName, localPort)
+                        
+                    # Check for launch failures
+                    if (int(exitCode) == 0):
+                        res = ''
+                        break
+                    else:
+                        res = 'Exit'
+                        idx += 1
+            elif product == 'firefox':
+                while idx < len(pv[product]):
+                    version = pv[product][idx]
+                    firefoxDockerfile(version)
+
+                    exitCode = buildAndRunImage(containerName, localPort)
+                        
+                    # Check for launch failures
+                    if (int(exitCode) == 0):
+                        res = ''
+                        break
+                    else:
+                        res = 'Exit'
+                        idx += 1
             else:
-                print('Preparar Dockerfile para otro tipo de producto')
+                while idx < len(pv[product]):
+                    version = pv[product][idx]
+                    generalDockerfile(product, version)
+
+                    exitCode = buildAndRunImage(containerName, localPort)
+                        
+                    # Check for launch failures
+                    if (int(exitCode) == 0):
+                        res = ''
+                        break
+                    else:
+                        res = 'Exit'
+                        idx += 1
         else:
             if product == 'openssl':
                 opensslDockerfile(pv[product])
@@ -114,8 +154,29 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
                 # Check for launch failures
                 if (int(exitCode) != 0):
                     res = 'Exit'
+            elif product == 'openssh':
+                opensshDockerfile(pv[product])
 
+                exitCode = buildAndRunImage(containerName, localPort)
+                            
+                # Check for launch failures
+                if (int(exitCode) != 0):
+                    res = 'Exit'
+            elif product == 'firefox':
+                firefoxDockerfile(pv[product])
+
+                exitCode = buildAndRunImage(containerName, localPort)
+                            
+                # Check for launch failures
+                if (int(exitCode) != 0):
+                    res = 'Exit'
             else:
-                print('Preparar Dockerfile para otro tipo de producto')
+                generalDockerfile(product, pv[product])
+                
+                exitCode = buildAndRunImage(containerName, localPort)
+                            
+                # Check for launch failures
+                if (int(exitCode) != 0):
+                    res = 'Exit'
     
     return res
