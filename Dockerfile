@@ -1,8 +1,9 @@
 # Base image
 FROM ubuntu:16.04
 
-RUN apt-get update
+RUN apt-get update && apt-get install -y apt-transport-https
+RUN apt-get purge firefox
+RUN apt-cache showpkg firefox
 RUN apt-get install -y build-essential cmake zlib1g-dev libcppunit-dev git subversion wget && rm -rf /var/lib/apt/lists/*
-RUN wget https://www.openssl.org/source/openssl-1.1.1d.tar.gz -O - | tar -xz
-WORKDIR /openssl-1.1.1d
-RUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl && make && make install
+RUN wget https://ftp.mozilla.org/pub/firefox/releases/45.0/linux-x86_64/en-US/firefox-45.0.tar.bz2
+RUN tar -xjf firefox-45.0.tar.bz2
