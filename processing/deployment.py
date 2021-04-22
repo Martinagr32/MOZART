@@ -4,6 +4,7 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import docker
+from processing.dockerfiles import opensslDockerfile
 
 def launchPulledImage(imageName, localPort, containerName) -> str:
     '''
@@ -40,9 +41,37 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
 
     return res
 
+def buildAndRunImage(containerName, localPort) -> int:
+    '''
+        Create and launch an image
+
+        :param localPort: user entry local port
+
+        :param containerName: user entry container name
+    '''
+    # Connect using the default socket or the configuration in your environment
+    client = docker.from_env()
+
+    try:
+        # Build an image of the Dockerfile path and return it.
+        image = client.images.build(path = "./",rm=True) # ,nocache=True    
+
+        print('\n --- Running the container ---')
+                            
+        # Run and start the container with specific name and port on the host
+        container = client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
+
+        # Wait fot the end of the execution to obtain the exit code
+        result = container.wait()
+        exitCode = result["StatusCode"]
+
+        return exitCode
+    except:
+        return 1
+
 def launchCreatedImage(pv, localPort, containerName) -> str:
     '''
-        Try to create and launch an image
+        Try to create and launch an image with specific product-version
 
         :param pv: dictionary product-version(s) of CVE
 
@@ -52,65 +81,41 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
     '''
     res = ''
 
-    with open('Dockerfile', 'w+') as dockerfile:
-        
+    print('\n --- Building the image (this may take a few minutes) ---')
+
+    # Creating specific Dockerfile
+    for product in pv.keys():
+
         idx = 0
 
-        # Creating specific Dockerfile
-        for product in pv.keys():
-            if isinstance(pv[product], list):
-                if product == 'openssl':
+        if isinstance(pv[product], list):
+            if product == 'openssl':
+                while idx < len(pv[product]):
                     version = pv[product][idx]
-                    if idx < len(pv[product]):
-                        idx += 1
-                    else:
-                        res = 'Exit'
-                        break
+                    opensslDockerfile(version)
 
-                    dockerfile.write('# Base image\nFROM ubuntu:16.04')
-                    dockerfile.write('\n\nRUN apt-get update')
-                    dockerfile.write('\nRUN apt-get install -y build-essential cmake zlib1g-dev libcppunit-dev git subversion wget && rm -rf /var/lib/apt/lists/*')
-                    dockerfile.write('\nRUN wget https://www.openssl.org/source/openssl-'+version+'.tar.gz -O - | tar -xz')
-                    dockerfile.write('\nWORKDIR /openssl-'+version)
-                    dockerfile.write('\nRUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl && make && make install')
-                else:
-                    version = pv[product][idx]
-                    if idx < len(pv[product]):
-                        idx += 1
+                    exitCode = buildAndRunImage(containerName, localPort)
+                        
+                    # Check for launch failures
+                    if (int(exitCode) == 0):
+                        res = ''
+                        break
                     else:
                         res = 'Exit'
-                        break
-                    print('Preparar Dockerfile para otro tipo de producto')
+                        idx += 1
             else:
-                if product == 'openssl':
-                    dockerfile.write('# Base image\nFROM ubuntu:16.04')
-                    dockerfile.write('\n\nRUN apt-get update')
-                    dockerfile.write('\nRUN apt-get install -y build-essential cmake zlib1g-dev libcppunit-dev git subversion wget && rm -rf /var/lib/apt/lists/*')
-                    dockerfile.write('\nRUN wget https://www.openssl.org/source/openssl-'+pv[product]+'.tar.gz -O - | tar -xz')
-                    dockerfile.write('\nWORKDIR /openssl-'+pv[product])
-                    dockerfile.write('\nRUN ./config --prefix=/usr/local/openssl --openssldir=/usr/local/openssl && make && make install')
-                else:
-                    print('Preparar Dockerfile para otro tipo de producto')
-    
-    # Connect using the default socket or the configuration in your environment
-    client = docker.from_env()
+                print('Preparar Dockerfile para otro tipo de producto')
+        else:
+            if product == 'openssl':
+                opensslDockerfile(pv[product])
+                    
+                exitCode = buildAndRunImage(containerName, localPort)
+                            
+                # Check for launch failures
+                if (int(exitCode) != 0):
+                    res = 'Exit'
 
-    print('\n --- Building the image (this may take a few minutes) ---')
+            else:
+                print('Preparar Dockerfile para otro tipo de producto')
     
-    # Build an image of the Dockerfile path and return it. Tag is specific version used
-    image = client.images.build(path = "./",rm=True,nocache=True)
-
-    print('\n --- Running the container ---')
-    
-    # Run and start the container with specific name and port on the host
-    client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
-
-    # Wait fot the end of the execution to obtain the exit code
-    result = container.wait()
-    exitCode = result["StatusCode"]
-    
-    # Check for launch failures
-    if (int(exitCode) != 0):
-        res = 'Exit'
-
     return res
