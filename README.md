@@ -1,4 +1,4 @@
-# MOZART
+# MOZART: MOdels analyZed & lAunch vulneRable environmenTs
 
 MOZART is a framework solution to enable and help the automatic deployment of vulnerable environments based on Docker containers. MOZART can automatically analyze AMADEUS feature models and deploy that environment.
 
