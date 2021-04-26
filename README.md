@@ -1,6 +1,6 @@
 # MOZART
 
-MOZART is a framework solution to enable and help the automatic deployment of vulnerable environments based on Docker containers. MOZART can automatically analyse AMADEUS feature models and deploy that environment.
+MOZART is a framework solution to enable and help the automatic deployment of vulnerable environments based on Docker containers. MOZART can automatically analyze AMADEUS feature models and deploy that environment.
 
 ## Setting up
 
@@ -42,6 +42,6 @@ optional arguments:
 
 During the execution, MOZART will ask you about filters to use, local port to deploy the container and specific name of this container. If you leave it empty, MOZART use default params (filter = version, localPort = 8080, name = defaultName).
 
-## Output & Examples
+## Output & Example
 
 MOZART's output is a container with product-version of CVE feature models analyzed. In command line it will notify if it has been created and launched successfully.
