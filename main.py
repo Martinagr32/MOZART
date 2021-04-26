@@ -33,10 +33,12 @@ def checkPortInput(localPort) -> int:
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Process a vulnerabily model', formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description='Process a vulnerabily feature model', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('fileDirectoryName', help='input file directory name\n'
                                                 'eg. models/CVE-example.fm')
     args = parser.parse_args()
+
+    print(' -----  MOZART  -----')
 
     # Check if file exists
     try:
@@ -81,113 +83,38 @@ if __name__ == "__main__":
                     # Get Product & Version of filtered leaves of the graph
                     pv = getProductVersion(graph, filters)
 
-                    # Get list of image names if they exist in the repository
-                    imageName = []#getExistingImageNames(pv) #'frapsoft/openssl'
-                    
-                    # Check if any image was found
-                    if not imageName:
-                        print('\nThe search has been unsuccessful! No image has been found')
+                    for product in pv.keys():
+                        if product != '':
 
-                        # Ask the user for local host port
-                        localPort = input('\nIn which port do you want to display the image?:')
+                            # Get list of image names if they exist in the repository
+                            imageName = getExistingImageNames(pv)
                             
-                        logFile.write('\nUser-entered port: ' + localPort)
-                        eLogFile.write('\nUser-entered port: ' + localPort)
+                            # Check if any image was found
+                            if not imageName:
+                                print('\nThe search has been unsuccessful! No image has been found')
 
-                        localPort = checkPortInput(localPort)
-
-                        # ASk the user for container name
-                        containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
-
-                        logFile.write('\nUser-entered container name: ' + containerName)
-                        eLogFile.write('\nUser-entered container name: ' + containerName)
+                                # Ask the user for local host port
+                                localPort = input('\nIn which port do you want to display the image?:')
                                     
-                        if containerName == '' or len(containerName.split()) > 1:
-                            containerName = 'defaultName' # Autogenerate default name
+                                logFile.write('\nUser-entered port: ' + localPort)
+                                eLogFile.write('\nUser-entered port: ' + localPort)
 
-                        # Build and run container image
-                        status = launchCreatedImage(pv, localPort, containerName)
+                                localPort = checkPortInput(localPort)
 
-                        # Check if it was launched successfully
-                        if(status == 'Exit'):
-                            print('Image could not be launched')
-                        else:
-                            print('\nImage has been launched successfully')
+                                # ASk the user for container name
+                                containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
 
-                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                        logFile.write('\n\n--- End of execution (' + now + ') ---')
-                        eLogFile.write('\n\n--- End of execution ---')
+                                logFile.write('\nUser-entered container name: ' + containerName)
+                                eLogFile.write('\nUser-entered container name: ' + containerName)
+                                            
+                                if containerName == '' or len(containerName.split()) > 1:
+                                    containerName = 'defaultName' # Autogenerate default name
 
-                    else:
-                        # Check if it is one or more and show number of images found
-                        if isinstance(imageName, list):
-                            print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
+                                # Build and run container image
+                                status = launchCreatedImage(pv, localPort, containerName)
 
-                            # Ask the user for local host port
-                            localPort = input('\nIn which port do you want to display the image?:')
-                            
-                            logFile.write('\nUser-entered port: ' + localPort)
-                            eLogFile.write('\nUser-entered port: ' + localPort)
-
-                            localPort = checkPortInput(localPort)
-
-                            # ASk the user for container name
-                            containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
-
-                            logFile.write('\nUser-entered container name: ' + containerName)
-                            eLogFile.write('\nUser-entered container name: ' + containerName)
-                                    
-                            if containerName == '' or len(containerName.split()) > 1:
-                                containerName = 'defaultName' # Autogenerate default name
-
-                            for image in imageName:
-
-                                # Pull and run container image
-                                status = launchPulledImage(image, localPort, containerName)
-                                
                                 # Check if it was launched successfully
                                 if(status == 'Exit'):
-                                    print('Image '+image+' could not be launched')
-                                else:
-                                    print('\nImage '+image+' has been launched successfully')
-                                    break
-                            
-                            now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                            logFile.write('\n\n--- End of execution (' + now + ') ---')
-                            eLogFile.write('\n\n--- End of execution ---')
-
-                        else:
-                            print('\nThe search has been successful! 1 image has been found')
-
-                            # Ask the user for local host port
-                            localPort = input('\nIn which port do you want to display the image?:')
-
-                            logFile.write('\nUser-entered port: ' + localPort)
-                            eLogFile.write('\nUser-entered port: ' + localPort)
-
-                            localPort = checkPortInput(localPort)
-
-                            # ASk the user for container name
-                            containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
-
-                            logFile.write('\nUser-entered container name: ' + containerName)
-                            eLogFile.write('\nUser-entered container name: ' + containerName)
-                                    
-                            if containerName == '' or len(containerName.split()) > 1:
-                                containerName = 'defaultName' # Autogenerate default name
-
-                            # Pull and run container image
-                            status = launchPulledImage(imageName, localPort, containerName)
-                            
-                            # Check if it was launched successfully
-                            if(status == 'Exit'):
-                                print('Image '+imageName+' could not be launched')
-                                
-                                # Build and run container image
-                                newStatus = launchCreatedImage(pv, localPort, containerName)
-
-                                # Check if it was launched successfully
-                                if(newStatus == 'Exit'):
                                     print('Image could not be launched')
                                 else:
                                     print('\nImage has been launched successfully')
@@ -197,11 +124,91 @@ if __name__ == "__main__":
                                 eLogFile.write('\n\n--- End of execution ---')
 
                             else:
-                                print('\nImage '+imageName+' has been launched successfully')
+                                # Check if it is one or more and show number of images found
+                                if isinstance(imageName, list):
+                                    print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
 
-                                now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
-                                logFile.write('\n\n--- End of execution (' + now + ') ---')
-                                eLogFile.write('\n\n--- End of execution ---')
+                                    # Ask the user for local host port
+                                    localPort = input('\nIn which port do you want to display the image?:')
+                                    
+                                    logFile.write('\nUser-entered port: ' + localPort)
+                                    eLogFile.write('\nUser-entered port: ' + localPort)
+
+                                    localPort = checkPortInput(localPort)
+
+                                    # ASk the user for container name
+                                    containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                                    logFile.write('\nUser-entered container name: ' + containerName)
+                                    eLogFile.write('\nUser-entered container name: ' + containerName)
+                                            
+                                    if containerName == '' or len(containerName.split()) > 1:
+                                        containerName = 'defaultName' # Autogenerate default name
+
+                                    for image in imageName:
+
+                                        # Pull and run container image
+                                        status = launchPulledImage(image, localPort, containerName)
+                                        
+                                        # Check if it was launched successfully
+                                        if(status == 'Exit'):
+                                            print('Image '+image+' could not be launched')
+                                        else:
+                                            print('\nImage '+image+' has been launched successfully')
+                                            break
+                                    
+                                    now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                    logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                    eLogFile.write('\n\n--- End of execution ---')
+
+                                else:
+                                    print('\nThe search has been successful! 1 image has been found')
+
+                                    # Ask the user for local host port
+                                    localPort = input('\nIn which port do you want to display the image?:')
+
+                                    logFile.write('\nUser-entered port: ' + localPort)
+                                    eLogFile.write('\nUser-entered port: ' + localPort)
+
+                                    localPort = checkPortInput(localPort)
+
+                                    # ASk the user for container name
+                                    containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+
+                                    logFile.write('\nUser-entered container name: ' + containerName)
+                                    eLogFile.write('\nUser-entered container name: ' + containerName)
+                                            
+                                    if containerName == '' or len(containerName.split()) > 1:
+                                        containerName = 'defaultName' # Autogenerate default name
+
+                                    # Pull and run container image
+                                    status = launchPulledImage(imageName, localPort, containerName)
+                                    
+                                    # Check if it was launched successfully
+                                    if(status == 'Exit'):
+                                        print('Image '+imageName+' could not be launched')
+                                        
+                                        # Build and run container image
+                                        newStatus = launchCreatedImage(pv, localPort, containerName)
+
+                                        # Check if it was launched successfully
+                                        if(newStatus == 'Exit'):
+                                            print('Image could not be launched')
+                                        else:
+                                            print('\nImage has been launched successfully')
+
+                                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                        eLogFile.write('\n\n--- End of execution ---')
+
+                                    else:
+                                        print('\nImage '+imageName+' has been launched successfully')
+
+                                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                        eLogFile.write('\n\n--- End of execution ---')
+                        else:
+                            print('Empty product')
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
