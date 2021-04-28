@@ -4,13 +4,22 @@ MOZART is a framework solution to enable and help the automatic deployment of vu
 
 ## Setting up
 
-### Requirements
+This software has been implemented and tested in Windows 10. To use it on another operating system, you may have to install some requirements by himself.
+
+### General requirements
 The minimum software requirements to run MOZART are:
 
 * Python  3
 * An Internet connection
 
-In addition, if you plan to launch it on Windows, you may need to install [Docker Desktop](https://docs.docker.com/docker-for-windows/install/) in your system and configure properly.
+### Windows requirements
+
+* Have running the docker daemon. You may need to install [Docker Desktop](https://docs.docker.com/docker-for-windows/install/) in your system and configure properly to run it.
+
+### Other operating systems requirements
+
+* Have running the docker daemon.
+* Have selenium geckodriver configure properly.
 
 ### Installation
 
