@@ -38,7 +38,7 @@ if __name__ == "__main__":
                                                 'eg. models/CVE-example.fm')
     args = parser.parse_args()
 
-    print(' -----  MOZART  -----')
+    print('\n       -----  MOZART  -----')
 
     # Check if file exists
     try:

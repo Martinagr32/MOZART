@@ -61,7 +61,7 @@ def buildAndRunImage(containerName, localPort) -> int:
         # Run and start the container with specific name and port on the host
         container = client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
 
-        # Wait fot the end of the execution to obtain the exit code
+        # Wait for the end of the execution to obtain the exit code
         result = container.wait()
         exitCode = result["StatusCode"]
 
@@ -178,5 +178,13 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
                 # Check for launch failures
                 if (int(exitCode) != 0):
                     res = 'Exit'
-    
+                    
+    # Connect using the default socket or the configuration in your environment
+    client = docker.from_env()
+
+    for cont in client.containers.list(all = True):
+        status = cont.wait()
+        if status["StatusCode"] != 0:
+            cont.remove()
+
     return res
