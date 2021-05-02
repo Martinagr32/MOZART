@@ -54,3 +54,11 @@ During the execution, MOZART will ask you about filters to use, local port to de
 ## Output & Example
 
 MOZART's output is a container with product-version of CVE feature models analyzed. In command line it will notify if it has been created and launched successfully.
+
+In order to stage a running example, let's suppose we have CVE whose product-version exists in Docker Hub. MOZART search it and it will try it:
+
+![MOZART Step 1](./docs/images/MOZART_searchImage.png)
+
+In other case, we have CVE whose product-version does not exist in Docker Hub. MOZART build the corresponding image:
+
+![MOZART Step 2](./docs/images/MOZART_buildImage.png)
