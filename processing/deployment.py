@@ -23,24 +23,27 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
     # Connect using the default socket or the configuration in your environment
     client = docker.from_env()
 
-    # Pull an image of the given name and return it
-    image = client.images.pull(imageName)
+    try:
+        # Pull an image of the given name and return it
+        image = client.images.pull(imageName)
 
-    print('\n --- Running the container ---')
-    
-    # Run and start the container with specific name and port on the host
-    container = client.containers.run(image,detach=True, name=str(containerName), ports={'2222/tcp': localPort})
+        print('\n --- Running the container ---')
+        
+        # Run and start the container with specific name and port on the host
+        container = client.containers.run(image,detach=True, name=str(containerName), ports={'2222/tcp': localPort})
 
-    # Wait fot the end of the execution to obtain the exit code
-    result = container.wait()
-    exitCode = result["StatusCode"]
-    
-    # Check for launch failures
-    if (int(exitCode) != 0):
-        for cont in client.containers.list(all = True):
-            status = cont.wait()
-            if status["StatusCode"] != 0:
-                cont.remove()
+        # Wait fot the end of the execution to obtain the exit code
+        result = container.wait()
+        exitCode = result["StatusCode"]
+        
+        # Check for launch failures
+        if (int(exitCode) != 0):
+            for cont in client.containers.list(all = True):
+                status = cont.wait()
+                if status["StatusCode"] != 0:
+                    cont.remove()
+            res = 'Exit'
+    except:
         res = 'Exit'
 
     return res
