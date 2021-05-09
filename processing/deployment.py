@@ -37,6 +37,10 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
     
     # Check for launch failures
     if (int(exitCode) != 0):
+        for cont in client.containers.list(all = True):
+            status = cont.wait()
+            if status["StatusCode"] != 0:
+                cont.remove()
         res = 'Exit'
 
     return res

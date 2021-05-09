@@ -40,12 +40,12 @@ def getExistingImageNames(pv) -> list:
         totalPage = pagination.split()[4]
         actualPage = pagination.split()[2]
 
-        while actualPage != totalPage:
+        while actualPage != totalPage and int(actualPage) <= 1000:
 
             # Print progress animation on console
             print('Working on it: '+animation[idx % len(animation)], end="\r")
             idx += 1
-
+            
             for i in range(1,26):
                 imageName = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__name___2198b").text
                 if not ('/' in imageName and product in imageName.split('/')[0]):
