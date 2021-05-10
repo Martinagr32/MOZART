@@ -156,6 +156,22 @@ if __name__ == "__main__":
                                         else:
                                             print('\nImage '+image+' has been launched successfully')
                                             break
+
+                                    # Check if it was launched successfully
+                                    if(status == 'Exit'):
+                                        
+                                        # Build and run container image
+                                        newStatus = launchCreatedImage(pv, localPort, containerName)
+
+                                        # Check if it was launched successfully
+                                        if(newStatus == 'Exit'):
+                                            print('Image could not be launched')
+                                        else:
+                                            print('\nImage has been launched successfully')
+
+                                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+                                        eLogFile.write('\n\n--- End of execution ---')
                                     
                                     now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                                     logFile.write('\n\n--- End of execution (' + now + ') ---')
@@ -224,7 +240,6 @@ if __name__ == "__main__":
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
         print('File not accessible. Please, check directory or file name.')
-        print(e)
     
     # Ensure that the file is closed even if an exception happends during the program execution
     finally:
