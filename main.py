@@ -208,7 +208,18 @@ if __name__ == "__main__":
                                         logFile.write('\n\n--- End of execution (' + now + ') ---')
                                         eLogFile.write('\n\n--- End of execution ---')
                         else:
-                            print('Empty product')
+                            print('\nEmpty product')
+
+                            now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                            logFile.write('\n\n--- End of execution (' + now + ') ---')
+                            eLogFile.write('\n\n--- End of execution ---')
+
+                    if not pv.keys():
+                        print('\nNo product to deploy')
+
+                        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
+                        logFile.write('\n\n--- End of execution (' + now + ') ---')
+                        eLogFile.write('\n\n--- End of execution ---')
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
