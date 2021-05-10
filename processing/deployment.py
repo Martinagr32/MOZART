@@ -32,6 +32,9 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
         # Run and start the container with specific name and port on the host
         container = client.containers.run(image,detach=True, name=str(containerName), ports={'2222/tcp': localPort})
 
+        # Stop the container
+        container.stop()
+
         # Wait fot the end of the execution to obtain the exit code
         result = container.wait()
         exitCode = result["StatusCode"]
