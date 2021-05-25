@@ -71,6 +71,9 @@ def buildAndRunImage(containerName, localPort) -> int:
         # Run and start the container with specific name and port on the host
         container = client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
 
+        # Stop the container
+        container.stop()
+        
         # Wait for the end of the execution to obtain the exit code
         result = container.wait()
         exitCode = result["StatusCode"]
