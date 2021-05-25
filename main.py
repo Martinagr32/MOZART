@@ -87,7 +87,7 @@ if __name__ == "__main__":
                         if product != '':
 
                             # Get list of image names if they exist in the repository
-                            imageName = getExistingImageNames(pv)
+                            imageName = getExistingImageNames(product,pv)
                             
                             # Check if any image was found
                             if not imageName:
@@ -111,7 +111,7 @@ if __name__ == "__main__":
                                     containerName = 'defaultName' # Autogenerate default name
 
                                 # Build and run container image
-                                status = launchCreatedImage(pv, localPort, containerName)
+                                status = launchCreatedImage(product, pv, localPort, containerName)
 
                                 # Check if it was launched successfully
                                 if(status == 'Exit'):

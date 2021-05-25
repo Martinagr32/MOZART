@@ -79,9 +79,11 @@ def buildAndRunImage(containerName, localPort) -> int:
     except:
         return 1
 
-def launchCreatedImage(pv, localPort, containerName) -> str:
+def launchCreatedImage(product, pv, localPort, containerName) -> str:
     '''
         Try to create and launch an image with specific product-version
+
+        :param product: product of for in main.py execution
 
         :param pv: dictionary product-version(s) of CVE
 
@@ -94,100 +96,97 @@ def launchCreatedImage(pv, localPort, containerName) -> str:
     print('\n --- Building the image (this may take a few minutes) ---')
 
     # Creating specific Dockerfile
-    for product in pv.keys():
+    idx = 0
 
-        idx = 0
+    if isinstance(pv[product], list):
+        if product == 'openssl':
+            while idx < len(pv[product]):
+                version = pv[product][idx]
+                opensslDockerfile(version)
 
-        if isinstance(pv[product], list):
-            if product == 'openssl':
-                while idx < len(pv[product]):
-                    version = pv[product][idx]
-                    opensslDockerfile(version)
-
-                    exitCode = buildAndRunImage(containerName, localPort)
+                exitCode = buildAndRunImage(containerName, localPort)
                         
-                    # Check for launch failures
-                    if (int(exitCode) == 0):
-                        res = ''
-                        break
-                    else:
-                        res = 'Exit'
-                        idx += 1
-            elif product == 'openssh':
-                while idx < len(pv[product]):
-                    version = pv[product][idx]
-                    opensshDockerfile(version)
+                # Check for launch failures
+                if (int(exitCode) == 0):
+                    res = ''
+                    break
+                else:
+                    res = 'Exit'
+                    idx += 1
+        elif product == 'openssh':
+            while idx < len(pv[product]):
+                version = pv[product][idx]
+                opensshDockerfile(version)
 
-                    exitCode = buildAndRunImage(containerName, localPort)
+                exitCode = buildAndRunImage(containerName, localPort)
                         
-                    # Check for launch failures
-                    if (int(exitCode) == 0):
-                        res = ''
-                        break
-                    else:
-                        res = 'Exit'
-                        idx += 1
-            elif product == 'firefox':
-                while idx < len(pv[product]):
-                    version = pv[product][idx]
-                    firefoxDockerfile(version)
+                # Check for launch failures
+                if (int(exitCode) == 0):
+                    res = ''
+                    break
+                else:
+                    res = 'Exit'
+                    idx += 1
+        elif product == 'firefox':
+            while idx < len(pv[product]):
+                version = pv[product][idx]
+                firefoxDockerfile(version)
 
-                    exitCode = buildAndRunImage(containerName, localPort)
+                exitCode = buildAndRunImage(containerName, localPort)
                         
-                    # Check for launch failures
-                    if (int(exitCode) == 0):
-                        res = ''
-                        break
-                    else:
-                        res = 'Exit'
-                        idx += 1
-            else:
-                while idx < len(pv[product]):
-                    version = pv[product][idx]
-                    generalDockerfile(product, version)
-
-                    exitCode = buildAndRunImage(containerName, localPort)
-                        
-                    # Check for launch failures
-                    if (int(exitCode) == 0):
-                        res = ''
-                        break
-                    else:
-                        res = 'Exit'
-                        idx += 1
+                # Check for launch failures
+                if (int(exitCode) == 0):
+                    res = ''
+                    break
+                else:
+                    res = 'Exit'
+                    idx += 1
         else:
-            if product == 'openssl':
-                opensslDockerfile(pv[product])
+            while idx < len(pv[product]):
+                version = pv[product][idx]
+                generalDockerfile(product, version)
+                exitCode = buildAndRunImage(containerName, localPort)
+                        
+                # Check for launch failures
+                if (int(exitCode) == 0):
+                    res = ''
+                    break
+                else:
+                    res = 'Exit'
+                    idx += 1
+    else:
+        if product == 'openssl':
+            opensslDockerfile(pv[product])
                     
-                exitCode = buildAndRunImage(containerName, localPort)
-                            
-                # Check for launch failures
-                if (int(exitCode) != 0):
-                    res = 'Exit'
-            elif product == 'openssh':
-                opensshDockerfile(pv[product])
+            exitCode = buildAndRunImage(containerName, localPort)
+                        
+            # Check for launch failures
+            if (int(exitCode) != 0):
+                res = 'Exit'
+        elif product == 'openssh':
+            opensshDockerfile(pv[product])
 
-                exitCode = buildAndRunImage(containerName, localPort)
+            exitCode = buildAndRunImage(containerName, localPort)
                             
-                # Check for launch failures
-                if (int(exitCode) != 0):
-                    res = 'Exit'
-            elif product == 'firefox':
-                firefoxDockerfile(pv[product])
+            # Check for launch failures
+            if (int(exitCode) != 0):
+                res = 'Exit'
+        elif product == 'firefox':
+            firefoxDockerfile(pv[product])
 
-                exitCode = buildAndRunImage(containerName, localPort)
-                            
-                # Check for launch failures
-                if (int(exitCode) != 0):
-                    res = 'Exit'
-            else:
-                generalDockerfile(product, pv[product])
+            exitCode = buildAndRunImage(containerName, localPort)
+                        
+            # Check for launch failures
+            if (int(exitCode) != 0):
+                res = 'Exit'
+        else:
+            generalDockerfile(product, pv[product])
                 
-                exitCode = buildAndRunImage(containerName, localPort)
+            exitCode = buildAndRunImage(containerName, localPort)
                             
-                # Check for launch failures
-                if (int(exitCode) != 0):
-                    res = 'Exit'
+            # Check for launch failures
+            if (int(exitCode) != 0):
+                res = 'Exit'
                     
     # Connect using the default socket or the configuration in your environment
     client = docker.from_env()
