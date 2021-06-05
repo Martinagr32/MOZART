@@ -73,7 +73,7 @@ def buildAndRunImage(containerName, localPort) -> int:
 
         # Stop the container
         container.stop()
-        
+
         # Wait for the end of the execution to obtain the exit code
         result = container.wait()
         exitCode = result["StatusCode"]
