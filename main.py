@@ -161,7 +161,7 @@ if __name__ == "__main__":
                                     if(status == 'Exit'):
                                         
                                         # Build and run container image
-                                        newStatus = launchCreatedImage(pv, localPort, containerName)
+                                        newStatus = launchCreatedImage(product, pv, localPort, containerName)
 
                                         # Check if it was launched successfully
                                         if(newStatus == 'Exit'):
@@ -205,7 +205,7 @@ if __name__ == "__main__":
                                         print('Image '+imageName+' could not be launched')
                                         
                                         # Build and run container image
-                                        newStatus = launchCreatedImage(pv, localPort, containerName)
+                                        newStatus = launchCreatedImage(product, pv, localPort, containerName)
 
                                         # Check if it was launched successfully
                                         if(newStatus == 'Exit'):
