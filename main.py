@@ -3,12 +3,17 @@
 '''
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
-import argparse
+from tkinter import *
+from tkinter.ttk import *
+from tkinter.filedialog import askopenfilename
+from PIL import ImageTk, Image
 from datetime import datetime
 
 from processing.CVEfiles import getGraph, getProductVersion
 from processing.scrapping import getExistingImageNames
 from processing.deployment import launchPulledImage, launchCreatedImage
+
+filename = ''
 
 def checkPortInput(localPort) -> int:
     '''
@@ -31,18 +36,68 @@ def checkPortInput(localPort) -> int:
 
     return localPort
 
+def selectCVE():
+    global filename
+    filename = askopenfilename()
+
+    buttonCVE["state"] = "disabled"
+
+def enterFilters():
+
+
+    buttonFilter["state"] = "disabled"
+
+def enterPort():
+    buttonPort["state"] = "disabled"
+
+def enterName():
+    buttonName["state"] = "disabled"
+
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Process a vulnerabily feature model', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('fileDirectoryName', help='input file directory name\n'
-                                                'eg. models/CVE-example.fm')
-    args = parser.parse_args()
+    # Main window
+    root = Tk()
+    root.title("MOZART")
+    root.geometry('520x305')
+    
+    # Image and icon
+    imgPath = "./img/MOZART.jpg"
+    img = ImageTk.PhotoImage(Image.open(imgPath))
+    panel = Label(root, image = img, anchor="center")
+    panel.grid(column=0, rowspan=6, pady=10, padx=10, sticky=W+E+N+S)
+    #panel.place(x=175, y=175)
+    #panel.pack(side = "top", fill = "both", expand = "yes")
 
-    print('\n       -----  MOZART  -----')
+    iconPath = "./img/iconMOZART.jpg"
+    icon = ImageTk.PhotoImage(Image.open(iconPath))
+    root.wm_iconphoto(False, icon)
+
+    # Style
+    style = Style()
+    style.configure('TButton', font =
+               ('calibri', 10, 'bold'),
+                foreground = 'black')
+    
+    # Buttons (inputs)
+    buttonCVE = Button(root, text="Select CVE", style = 'TButton', command = selectCVE)
+    buttonCVE.grid(row = 1, column = 1, padx = 70)
+
+    buttonFilter = Button(root, text="Enter filters", style = 'TButton', command = enterFilters)
+    buttonFilter.grid(row = 2, column = 1, padx = 70)
+
+    buttonPort = Button(root, text="Enter port", style = 'TButton', command = enterPort)
+    buttonPort.grid(row = 3, column = 1, padx = 70)
+
+    buttonName = Button(root, text="Enter name", style = 'TButton', command = enterName)
+    buttonName.grid(row = 4, column = 1, padx = 70)
+    
+    root.mainloop()
 
     # Check if file exists
     try:
-        with open(args.fileDirectoryName) as file:
+        with open(filename, 'r') as file:
+
+            print(file.read())
 
             # Append execution to general log
             with open('log/inputsLog.txt','a+') as logFile:
@@ -56,11 +111,11 @@ if __name__ == "__main__":
                     # Introducing in general log
                     now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                     logFile.write('\n--- Starting execution (' + now + ') ---')
-                    logFile.write('\n\nCVE file: '+args.fileDirectoryName)
+                    logFile.write('\n\nCVE file: '+filename)
 
                     # Introducing in specific log
                     eLogFile.write('--- Starting execution ---')
-                    eLogFile.write('\n\nCVE file: '+args.fileDirectoryName)
+                    eLogFile.write('\n\nCVE file: '+filename)
 
                     # Load description and vulnerability tree
                     description, graph = getGraph(file)
