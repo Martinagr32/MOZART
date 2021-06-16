@@ -154,11 +154,11 @@ def start():
                         if product != '':
 
                             # Get list of image names if they exist in the repository
-                            imageName = []#getExistingImageNames(product,pv)
+                            imageName = getExistingImageNames(product,pv)
                             
                             # Check if any image was found
                             if not imageName:
-                                print('\nThe search has been unsuccessful! No image has been found')
+                                messagebox.showinfo("INFO", "The search has been unsuccessful! No image has been found.")
 
                                 # Ask the user for local host port
                                 introducedPort = enterPort()
@@ -184,9 +184,11 @@ def start():
 
                                 # Check if it was launched successfully
                                 if(status == 'Exit'):
-                                    print('Image could not be launched')
+                                    messagebox.showinfo("INFO", "Image could not be launched.")
+                                    root.quit()                                   
                                 else:
-                                    print('\nImage has been launched successfully')
+                                    messagebox.showinfo("INFO", "Image has been launched successfully.")
+                                    root.quit()
 
                                 now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                                 logFile.write('\n\n--- End of execution (' + now + ') ---')
@@ -195,7 +197,8 @@ def start():
                             else:
                                 # Check if it is one or more and show number of images found
                                 if isinstance(imageName, list):
-                                    print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
+                                    infoText = "The search has been successful! "+str(len(imageName))+" images have been found."
+                                    messagebox.showinfo("INFO", infoText)                                    
 
                                     # Ask the user for local host port
                                     introducedPort = enterPort()
@@ -223,9 +226,12 @@ def start():
                                         
                                         # Check if it was launched successfully
                                         if(status == 'Exit'):
-                                            print('Image '+image+' could not be launched')
+                                            text = "Image " + image + " could not be launched."
+                                            messagebox.showinfo("INFO", text)
                                         else:
-                                            print('\nImage '+image+' has been launched successfully')
+                                            text = 'Image '+image+' has been launched successfully'
+                                            messagebox.showinfo("INFO", text)
+                                            root.quit()
                                             break
 
                                     # Check if it was launched successfully
@@ -236,9 +242,11 @@ def start():
 
                                         # Check if it was launched successfully
                                         if(newStatus == 'Exit'):
-                                            print('Image could not be launched')
+                                            messagebox.showinfo("INFO", 'Image could not be launched')
+                                            root.quit()
                                         else:
-                                            print('\nImage has been launched successfully')
+                                            messagebox.showinfo("INFO", 'Image has been launched successfully')
+                                            root.quit()                                            
 
                                         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                                         logFile.write('\n\n--- End of execution (' + now + ') ---')
@@ -249,7 +257,7 @@ def start():
                                     eLogFile.write('\n\n--- End of execution ---')
 
                                 else:
-                                    print('\nThe search has been successful! 1 image has been found')
+                                    messagebox.showinfo("INFO", 'The search has been successful! 1 image has been found')                                    
 
                                     # Ask the user for local host port
                                     introducedPort = enterPort()
@@ -275,40 +283,47 @@ def start():
                                     
                                     # Check if it was launched successfully
                                     if(status == 'Exit'):
-                                        print('Image '+imageName+' could not be launched')
+                                        text = 'Image '+imageName+' could not be launched'
+                                        messagebox.showinfo("INFO", text) 
                                         
                                         # Build and run container image
                                         newStatus = launchCreatedImage(product, pv, localPort, containerName)
 
                                         # Check if it was launched successfully
                                         if(newStatus == 'Exit'):
-                                            print('Image could not be launched')
+                                            messagebox.showinfo("INFO", 'Image could not be launched')
+                                            root.quit()
                                         else:
-                                            print('\nImage has been launched successfully')
+                                            messagebox.showinfo("INFO", 'Image has been launched successfully')
+                                            root.quit()
 
                                         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                                         logFile.write('\n\n--- End of execution (' + now + ') ---')
                                         eLogFile.write('\n\n--- End of execution ---')
 
                                     else:
-                                        print('\nImage '+imageName+' has been launched successfully')
+                                        text = 'Image '+imageName+' has been launched successfully'
+                                        messagebox.showinfo("INFO", text)
+                                        root.quit()
 
                                         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                                         logFile.write('\n\n--- End of execution (' + now + ') ---')
                                         eLogFile.write('\n\n--- End of execution ---')
                         else:
-                            print('\nEmpty product')
+                            messagebox.showinfo("INFO", 'Empty product')
 
                             now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                             logFile.write('\n\n--- End of execution (' + now + ') ---')
                             eLogFile.write('\n\n--- End of execution ---')
+                            root.quit()
 
                     if not pv.keys():
-                        print('\nNo product to deploy')
+                        messagebox.showinfo("INFO", 'No product to deploy')
 
                         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S') # Get current date and time
                         logFile.write('\n\n--- End of execution (' + now + ') ---')
                         eLogFile.write('\n\n--- End of execution ---')
+                        root.quit()
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:

@@ -4,6 +4,9 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import time
+from tkinter import *
+from tkinter import ttk
+from PIL import ImageTk, Image
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -16,10 +19,17 @@ def getExistingImageNames(product,pv) -> list:
         :param pv: dictionary product-version(s) of CVE
     '''
     res = []
-    animation = '|/-\\'
-    idx = 0
 
-    print('\n --- Starting the image search (this may take a few minutes) ---')
+    windowS = Toplevel()
+    windowS.title("Searching images")
+    windowS.geometry('450x100')
+    iconPath = "./img/iconMOZART.jpg"
+    icon = ImageTk.PhotoImage(Image.open(iconPath))
+    windowS.wm_iconphoto(False, icon)
+
+    my_progress = ttk.Progressbar(windowS, orient=HORIZONTAL, length=300, mode='indeterminate')
+    my_progress.pack(pady=20)
+    my_progress.start(20)
 
     # Options modification to not open the browser
     options = webdriver.FirefoxOptions()
@@ -41,10 +51,6 @@ def getExistingImageNames(product,pv) -> list:
     actualPage = pagination.split()[2]
 
     while actualPage != totalPage and int(actualPage) <= 1000:
-
-        # Print progress animation on console
-        print('Working on it: '+animation[idx % len(animation)], end="\r")
-        idx += 1
             
         for i in range(1,26):
             imageName = driver.find_element(By.CSS_SELECTOR, ".imageSearchResult:nth-child("+str(i)+") .styles__name___2198b").text
@@ -82,5 +88,7 @@ def getExistingImageNames(product,pv) -> list:
     
     # Closing driver
     driver.quit()
+
+    windowS.destroy()
 
     return res

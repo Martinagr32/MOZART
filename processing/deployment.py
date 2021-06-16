@@ -4,6 +4,7 @@
 __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 
 import docker
+from tkinter import messagebox
 from processing.dockerfiles import opensslDockerfile, opensshDockerfile, firefoxDockerfile, generalDockerfile
 
 def launchPulledImage(imageName, localPort, containerName) -> str:
@@ -18,7 +19,7 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
     '''
     res = ''
 
-    print('\n --- Connecting and pulling an image ---')
+    messagebox.showinfo("INFO", "Connecting and pulling an image.")
 
     # Connect using the default socket or the configuration in your environment
     client = docker.from_env()
@@ -27,7 +28,7 @@ def launchPulledImage(imageName, localPort, containerName) -> str:
         # Pull an image of the given name and return it
         image = client.images.pull(imageName)
 
-        print('\n --- Running the container ---')
+        messagebox.showinfo("INFO", "Running the container. It may take time.")
         
         # Run and start the container with specific name and port on the host
         container = client.containers.run(image,detach=True, name=str(containerName), ports={'2222/tcp': localPort})
@@ -66,7 +67,7 @@ def buildAndRunImage(containerName, localPort) -> int:
         # Build an image of the Dockerfile path and return it.
         image = client.images.build(path = "./",rm=True) # ,nocache=True 
 
-        print('\n --- Running the container ---')
+        messagebox.showinfo("INFO", "Running the container. It may take time.")
                             
         # Run and start the container with specific name and port on the host
         container = client.containers.run(image[0],detach=True, name=str(containerName), ports={'2222/tcp': localPort})
@@ -96,7 +97,7 @@ def launchCreatedImage(product, pv, localPort, containerName) -> str:
     '''
     res = ''
 
-    print('\n --- Building the image (this may take a few minutes) ---')
+    messagebox.showinfo("INFO", "Building the image. It may take a few minutes.")
 
     # Creating specific Dockerfile
     idx = 0
