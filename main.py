@@ -6,6 +6,7 @@ __author__ = "Martin A. Guerrero Romero (marguerom1@alum.us.es)"
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
 from PIL import ImageTk, Image
 from datetime import datetime
 
@@ -14,6 +15,7 @@ from processing.scrapping import getExistingImageNames
 from processing.deployment import launchPulledImage, launchCreatedImage
 
 filename = ''
+userFilters = ''
 
 def checkPortInput(localPort) -> int:
     '''
@@ -37,67 +39,76 @@ def checkPortInput(localPort) -> int:
     return localPort
 
 def selectCVE():
-    global filename
     filename = askopenfilename()
-
-    buttonCVE["state"] = "disabled"
+    return filename
 
 def enterFilters():
+    windowF = Toplevel()
+    windowF.title("Enter filters")
+    windowF.geometry('430x80')
+    windowF.wm_iconphoto(False, icon)
 
+    label = Label(windowF, text="Please, enter filter words (separated by commas):")
+    label.grid(column=0, row=0, pady=10, padx=10)
 
-    buttonFilter["state"] = "disabled"
+    filt = StringVar()
+    entry = Entry(windowF, textvariable=filt)
+    entry.grid(column=1, row=0, pady=10, padx=10)
+
+    buttonF = Button(windowF, text = "Continue", command= windowF.destroy)
+    buttonF.grid(row = 1, columnspan = 2, padx = 10)
+
+    windowF.wait_window()
+
+    return filt
 
 def enterPort():
-    buttonPort["state"] = "disabled"
+    windowP = Toplevel()
+    windowP.title("Entering deployment port")
+    windowP.geometry('425x80')
+    windowP.wm_iconphoto(False, icon)
+
+    label = Label(windowP, text="In which port do you want to display the image?")
+    label.grid(column=0, row=0, pady=10, padx=10)
+
+    port = StringVar()
+    entry = Entry(windowP, textvariable=port)
+    entry.grid(column=1, row=0, pady=10, padx=10)
+
+    buttonP = Button(windowP, text = "Continue", command= windowP.destroy)
+    buttonP.grid(row = 1, columnspan = 2, padx = 10)
+
+    windowP.wait_window()
+
+    return port
 
 def enterName():
-    buttonName["state"] = "disabled"
+    windowN = Toplevel()
+    windowN.title("Entering container name")
+    windowN.geometry('550x80')
+    windowN.wm_iconphoto(False, icon)
 
-if __name__ == "__main__":
+    label = Label(windowN, text="Enter container name (without spaces -> preferable use camelCase)")
+    label.grid(column=0, row=0, pady=10, padx=10)
 
-    # Main window
-    root = Tk()
-    root.title("MOZART")
-    root.geometry('520x305')
-    
-    # Image and icon
-    imgPath = "./img/MOZART.jpg"
-    img = ImageTk.PhotoImage(Image.open(imgPath))
-    panel = Label(root, image = img, anchor="center")
-    panel.grid(column=0, rowspan=6, pady=10, padx=10, sticky=W+E+N+S)
-    #panel.place(x=175, y=175)
-    #panel.pack(side = "top", fill = "both", expand = "yes")
+    name = StringVar()
+    entry = Entry(windowN, textvariable=name)
+    entry.grid(column=1, row=0, pady=10, padx=10)
 
-    iconPath = "./img/iconMOZART.jpg"
-    icon = ImageTk.PhotoImage(Image.open(iconPath))
-    root.wm_iconphoto(False, icon)
+    buttonP = Button(windowN, text = "Continue", command= windowN.destroy)
+    buttonP.grid(row = 1, columnspan = 2, padx = 10)
 
-    # Style
-    style = Style()
-    style.configure('TButton', font =
-               ('calibri', 10, 'bold'),
-                foreground = 'black')
-    
-    # Buttons (inputs)
-    buttonCVE = Button(root, text="Select CVE", style = 'TButton', command = selectCVE)
-    buttonCVE.grid(row = 1, column = 1, padx = 70)
+    windowN.wait_window()
 
-    buttonFilter = Button(root, text="Enter filters", style = 'TButton', command = enterFilters)
-    buttonFilter.grid(row = 2, column = 1, padx = 70)
+    return name
 
-    buttonPort = Button(root, text="Enter port", style = 'TButton', command = enterPort)
-    buttonPort.grid(row = 3, column = 1, padx = 70)
+def start():
 
-    buttonName = Button(root, text="Enter name", style = 'TButton', command = enterName)
-    buttonName.grid(row = 4, column = 1, padx = 70)
-    
-    root.mainloop()
+    filename = selectCVE()
 
     # Check if file exists
     try:
-        with open(filename, 'r') as file:
-
-            print(file.read())
+        with open(filename) as file:
 
             # Append execution to general log
             with open('log/inputsLog.txt','a+') as logFile:
@@ -121,7 +132,8 @@ if __name__ == "__main__":
                     description, graph = getGraph(file)
 
                     # Ask the user for filters
-                    filter = input('\nPlease, enter filter words (separated by commas):')
+                    enterFilter = enterFilters()
+                    filter = enterFilter.get()
 
                     logFile.write('\n\nUser-entered filters: ' + filter)
                     eLogFile.write('\n\nUser-entered filters: ' + filter)
@@ -142,22 +154,24 @@ if __name__ == "__main__":
                         if product != '':
 
                             # Get list of image names if they exist in the repository
-                            imageName = getExistingImageNames(product,pv)
+                            imageName = []#getExistingImageNames(product,pv)
                             
                             # Check if any image was found
                             if not imageName:
                                 print('\nThe search has been unsuccessful! No image has been found')
 
                                 # Ask the user for local host port
-                                localPort = input('\nIn which port do you want to display the image?:')
+                                introducedPort = enterPort()
+                                localPort = introducedPort.get()
                                     
                                 logFile.write('\nUser-entered port: ' + localPort)
                                 eLogFile.write('\nUser-entered port: ' + localPort)
 
                                 localPort = checkPortInput(localPort)
 
-                                # ASk the user for container name
-                                containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+                                # Ask the user for container name
+                                introducedName = enterName()
+                                containerName = introducedName.get()
 
                                 logFile.write('\nUser-entered container name: ' + containerName)
                                 eLogFile.write('\nUser-entered container name: ' + containerName)
@@ -184,7 +198,8 @@ if __name__ == "__main__":
                                     print('\nThe search has been successful! '+str(len(imageName))+' images have been found')
 
                                     # Ask the user for local host port
-                                    localPort = input('\nIn which port do you want to display the image?:')
+                                    introducedPort = enterPort()
+                                    localPort = introducedPort.get()
                                     
                                     logFile.write('\nUser-entered port: ' + localPort)
                                     eLogFile.write('\nUser-entered port: ' + localPort)
@@ -192,7 +207,8 @@ if __name__ == "__main__":
                                     localPort = checkPortInput(localPort)
 
                                     # ASk the user for container name
-                                    containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+                                    introducedName = enterName()
+                                    containerName = introducedName.get()
 
                                     logFile.write('\nUser-entered container name: ' + containerName)
                                     eLogFile.write('\nUser-entered container name: ' + containerName)
@@ -236,7 +252,8 @@ if __name__ == "__main__":
                                     print('\nThe search has been successful! 1 image has been found')
 
                                     # Ask the user for local host port
-                                    localPort = input('\nIn which port do you want to display the image?:')
+                                    introducedPort = enterPort()
+                                    localPort = introducedPort.get()
 
                                     logFile.write('\nUser-entered port: ' + localPort)
                                     eLogFile.write('\nUser-entered port: ' + localPort)
@@ -244,7 +261,8 @@ if __name__ == "__main__":
                                     localPort = checkPortInput(localPort)
 
                                     # ASk the user for container name
-                                    containerName = input('\nPlease, enter container name (without spaces -> preferable use camelCase):')
+                                    introducedName = enterName()
+                                    containerName = introducedName.get()
 
                                     logFile.write('\nUser-entered container name: ' + containerName)
                                     eLogFile.write('\nUser-entered container name: ' + containerName)
@@ -294,10 +312,36 @@ if __name__ == "__main__":
 
     # Catch File Not Found Error if the file is not found
     except FileNotFoundError as e:
-        print('File not accessible. Please, check directory or file name.')
+        messagebox.showerror("ERROR", "File not selected. Please, select a file.")
+
+
+if __name__ == "__main__":
+
+    # Main window
+    root = Tk()
+    root.title("MOZART")
+    root.geometry('520x305')
     
-    # Ensure that the file is closed even if an exception happends during the program execution
-    finally:
-        eLogFile.close()
-        logFile.close()
-        file.close()
+    # Image and icon
+    imgPath = "./img/MOZART.jpg"
+    img = ImageTk.PhotoImage(Image.open(imgPath))
+    panel = Label(root, image = img, anchor="center")
+    panel.grid(column=0, row=0, pady=10, padx=10, sticky=W+E+N+S)
+
+    iconPath = "./img/iconMOZART.jpg"
+    icon = ImageTk.PhotoImage(Image.open(iconPath))
+    root.wm_iconphoto(False, icon)
+
+    # Style
+    style = Style()
+    style.configure('TButton', font =
+               ('calibri', 10, 'bold'),
+                foreground = 'black')
+    
+    # Start button
+    buttonStart = Button(root, text="Start!", style = 'TButton', command = start)
+    buttonStart.grid(row = 0, column = 1, padx = 70)
+    
+    root.mainloop()
+
+    

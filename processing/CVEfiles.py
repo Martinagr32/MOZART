@@ -12,9 +12,8 @@ def getCleanData(file) -> list:
         :param file: CVE file directory name to work with
     '''
     data=[]
-
-    dirtyData = file.readlines()
-    for line in dirtyData:
+    
+    for line in file.readlines():
         if line != '\n':
             data.append(line.replace(';\n', ''))
     data.pop(1)
