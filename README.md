@@ -30,7 +30,7 @@ This step involves the process of retrieving and installing required dependencie
 
 ## Usage
 
-MOZART supports one type of execution. You can type the command ```--help``` to display the following explanatory dialog.
+MOZART supports two type of execution. If you use 'Command Shell', you can type the command ```--help``` to display the following explanatory dialog.
 
 ```
 $ python main.py -h
@@ -55,7 +55,7 @@ During the execution, MOZART will ask you about filters to use, local port to de
 
 MOZART's output is a container with product-version of CVE feature models analyzed. In command line it will notify if it has been created and launched successfully.
 
-In order to stage a running example, let's suppose we have CVE whose product-version exists in Docker Hub. MOZART search it and it will try it:
+In order to stage a running example of Command Shell execution, let's suppose we have CVE whose product-version exists in Docker Hub. MOZART search it and it will try it:
 
 ![MOZART Step 1](./docs/images/MOZART_searchImage.png)
 
